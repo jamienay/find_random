@@ -1,6 +1,22 @@
 <?php
 class AppModel extends Model {
     
+    function find($type, $options = array()) {
+        $method = null;
+        if (is_string($type)) {
+            $method = sprintf('__find%s', Inflector::camelize($type));
+        }
+        
+        if ($method && method_exists($this, $method)) {
+            $results = $this->{$method}($options);
+        } else {
+            $args = func_get_args();
+            $results = call_user_func_array(array('parent', 'find'), $args);
+        }
+
+        return $results;
+    }
+      
     /**
      * __findRandom()
      *
@@ -78,4 +94,5 @@ class AppModel extends Model {
             return $this->find('all', $findOptions);
         }
     }
+}
 ?>
